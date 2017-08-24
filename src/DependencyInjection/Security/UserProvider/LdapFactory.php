@@ -111,5 +111,84 @@ class LdapFactory implements UserProviderFactoryInterface
      */
     public function create(ContainerBuilder $container, $id, $config)
     {
+        $this->createUserFactoryDefinition($container, $id, $config['user_factory']);
+        $this->createLdapClientDefinition($container, $id, $config['connection']);
+        $this->createLdapUserProviderDefinition($container, $id, $config);
+    }
+
+    /**
+     * Adds an user factory service definition to the service container.
+     *
+     * @param ContainerBuilder $container
+     * @param string           $id
+     * @param array            $configuration
+     */
+    private function createUserFactoryDefinition(ContainerBuilder $container, $id, array $configuration)
+    {
+        if (isset($configuration['user_factory']['service'])) {
+            return;
+        }
+
+        $definitionDecorator = new DefinitionDecorator(
+            sprintf('connect_holland_ldap.security.user.factory.%s', $configuration['type'])
+        );
+
+        $userPropertyMapArgumentIndex = 5;
+        if ($configuration['type'] === 'doctrine') {
+            $userPropertyMapArgumentIndex = 3;
+
+            $definitionDecorator->replaceArgument(1, $configuration['user_class']);
+            $definitionDecorator->replaceArgument(2, $configuration['username_column']);
+        }
+
+        $definitionDecorator->replaceArgument($userPropertyMapArgumentIndex, $configuration['user_property_map']);
+
+        $container->setDefinition($id.'.user.factory', $definitionDecorator);
+    }
+
+    /**
+     * Adds an LDAP client service definition to the service container.
+     *
+     * @param ContainerBuilder $container
+     * @param string           $id
+     * @param array            $configuration
+     */
+    private function createLdapClientDefinition(ContainerBuilder $container, $id, array $configuration)
+    {
+        $encryptionSsl = $configuration['encryption'] === 'ssl';
+        $encryptionTls = $configuration['encryption'] === 'tls';
+
+        $container->setDefinition($id.'.client', new DefinitionDecorator('connect_holland_ldap.ldap.client'))
+            ->replaceArgument(0, $configuration['host'])
+            ->replaceArgument(1, $configuration['port'])
+            ->replaceArgument(2, $configuration['options']['protocol_version'])
+            ->replaceArgument(3, $encryptionSsl)
+            ->replaceArgument(4, $encryptionTls)
+            ->replaceArgument(5, $configuration['options']['referrals']);
+    }
+
+    /**
+     * Adds an LDAP user provider service definition to the service container.
+     *
+     * @param ContainerBuilder $container
+     * @param string           $id
+     * @param array            $configuration
+     */
+    private function createLdapUserProviderDefinition(ContainerBuilder $container, $id, array $configuration)
+    {
+        $userFactoryId = $id.'.user.factory';
+        if (isset($configuration['user_factory']['service'])) {
+            $userFactoryId = $configuration['user_factory']['service'];
+        }
+
+        $container->setDefinition($id, new DefinitionDecorator('connect_holland_ldap.security.user.provider.ldap'))
+            ->replaceArgument(0, new Reference($userFactoryId))
+            ->replaceArgument(1, new Reference($id.'.client'))
+            ->replaceArgument(2, $configuration['base_dn'])
+            ->replaceArgument(3, $configuration['search_dn'])
+            ->replaceArgument(4, $configuration['search_password'])
+            ->replaceArgument(5, $configuration['default_roles'])
+            ->replaceArgument(6, $configuration['uid_key'])
+            ->replaceArgument(7, $configuration['filter']);
     }
 }
