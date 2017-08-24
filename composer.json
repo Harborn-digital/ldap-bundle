@@ -1,0 +1,26 @@
+{
+    "name": "connectholland/ldap-bundle",
+    "description": "LDAP authentication for various existing user bundles.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Niels Nijens",
+            "email": "niels@connectholland.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ConnectHolland\\LdapBundle\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "symfony/ldap": "^2.8 || ~3.0.0",
+        "symfony/property-access": "^2.8 || ^3.0",
+        "symfony/security-core": "^2.8 || ~3.0.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
