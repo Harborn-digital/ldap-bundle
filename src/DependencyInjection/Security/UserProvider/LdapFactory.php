@@ -3,7 +3,6 @@
 namespace ConnectHolland\LdapBundle\DependencyInjection\Security\UserProvider;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\UserProvider\UserProviderFactoryInterface;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -36,23 +35,22 @@ class LdapFactory implements UserProviderFactoryInterface
         $node
             ->children()
                 ->arrayNode('connection')
+                    ->isRequired()
                     ->children()
                         ->scalarNode('host')
                             ->isRequired()
                             ->cannotBeEmpty()
                             ->end()
                         ->integerNode('port')
-                            ->cannotBeEmpty()
                             ->defaultValue(389)
                             ->end()
                         ->enumNode('encryption')
                             ->values(array('ssl', 'tls'))
                             ->end()
                         ->arrayNode('options')
-                            ->canBeDisabled()
+                            ->addDefaultsIfNotSet()
                             ->children()
                                 ->integerNode('protocol_version')
-                                    ->cannotBeEmpty()
                                     ->defaultValue(3)
                                     ->end()
                                 ->booleanNode('referrals')
@@ -63,6 +61,7 @@ class LdapFactory implements UserProviderFactoryInterface
                         ->end()
                     ->end()
                 ->arrayNode('user_factory')
+                    ->isRequired()
                     ->children()
                         ->enumNode('type')
                             ->values(array('doctrine', 'sulu'))
@@ -125,7 +124,9 @@ class LdapFactory implements UserProviderFactoryInterface
      */
     private function createUserFactoryDefinition(ContainerBuilder $container, $id, array $configuration)
     {
-        if (isset($configuration['user_factory']['service'])) {
+        $container->setParameter($id.'.user.factory.user_property_map', $configuration['user_property_map']);
+
+        if (isset($configuration['user_factory']['service']) || isset($configuration['type']) === false) {
             return;
         }
 
@@ -155,8 +156,8 @@ class LdapFactory implements UserProviderFactoryInterface
      */
     private function createLdapClientDefinition(ContainerBuilder $container, $id, array $configuration)
     {
-        $encryptionSsl = $configuration['encryption'] === 'ssl';
-        $encryptionTls = $configuration['encryption'] === 'tls';
+        $encryptionSsl = isset($configuration['encryption']) && $configuration['encryption'] === 'ssl';
+        $encryptionTls = isset($configuration['encryption']) && $configuration['encryption'] === 'tls';
 
         $container->setDefinition($id.'.client', new DefinitionDecorator('connect_holland_ldap.ldap.client'))
             ->replaceArgument(0, $configuration['host'])
