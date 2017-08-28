@@ -46,12 +46,11 @@ class LdapUserProvider extends BaseLdapUserProvider
     }
 
     /**
-     * @param string $username
-     * @param array  $user
+     * {@inheritdoc}
      */
-    public function loadUser($username, $user)
+    public function loadUser($username, $entry)
     {
-        return $this->userFactory->getOrCreate($username, $user, $this->defaultRoles);
+        return $this->userFactory->getOrCreate($username, $entry, $this->defaultRoles);
     }
 
     /**
@@ -66,7 +65,7 @@ class LdapUserProvider extends BaseLdapUserProvider
             );
         }
 
-        return $this->userFactory->getOrCreate($user->getUsername(), array());
+        return $this->userFactory->getOrCreate($user->getUsername(), array(), array());
     }
 
     /**
