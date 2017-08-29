@@ -22,7 +22,7 @@ class LdapFactory implements UserProviderFactoryInterface
      */
     public function getKey()
     {
-        return 'custom_user_ldap';
+        return 'connect_holland_ldap';
     }
 
     /**

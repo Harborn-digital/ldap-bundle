@@ -34,7 +34,7 @@ security:
 
     providers:
         my_ldap:
-            custom_user_ldap: # Configuration part of this bundle.
+            connect_holland_ldap: # Configuration part of this bundle.
                 connection:
                     host: ldap.example.com
                 user_factory:
@@ -73,7 +73,7 @@ security:
     # ...
     
     ldap:
-        custom_user_ldap: # Configuration part of this bundle.
+        connect_holland_ldap: # Configuration part of this bundle.
             connection:
                 host: ldap.example.com
             user_factory:
@@ -109,7 +109,7 @@ Adjust the settings within `custom_user_ldap` according to your LDAP configurati
 
 ## Configuration reference
 ``` yaml
-custom_user_ldap:
+connect_holland_ldap:
     connection:
         host: ldap.example.com
         port: 389

@@ -39,7 +39,7 @@ class LdapFactoryTest extends AbstractContainerBuilderTestCase
      */
     public function testGetKey()
     {
-        $this->assertSame('custom_user_ldap', $this->ldapFactory->getKey());
+        $this->assertSame('connect_holland_ldap', $this->ldapFactory->getKey());
     }
 
     /**
