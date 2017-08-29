@@ -16,6 +16,7 @@
     },
     "require": {
         "php": "^5.6 || ^7.0",
+        "doctrine/doctrine-bundle": "~1.6.0",
         "symfony/ldap": "^2.8 || ~3.0.0",
         "symfony/property-access": "^2.8 || ^3.0",
         "symfony/security": "^2.8 || ~3.0.0",
