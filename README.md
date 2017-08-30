@@ -108,7 +108,7 @@ security:
                 dn_string: 'uid={username},ou=users,dc=example,dc=com'
 ```
 
-Adjust the settings within `custom_user_ldap` according to your LDAP configuration.
+Adjust the settings within `connect_holland_ldap` according to your LDAP configuration.
 
 ## Configuration reference
 ``` yaml
