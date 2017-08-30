@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="connect_holland_ldap.security.user.provider.ldap.class">ConnectHolland\LdapBundle\Security\User\LdapUserProvider</parameter>
+        <parameter key="connect_holland_ldap.ldap.client.class">Symfony\Component\Ldap\LdapClient</parameter>
+        <parameter key="connect_holland_ldap.security.user.factory.doctrine.class">ConnectHolland\LdapBundle\Security\User\Factory\DoctrineUserFactory</parameter>
+        <parameter key="connect_holland_ldap.security.user.factory.sulu.class">ConnectHolland\LdapBundle\Security\User\Factory\SuluUserFactory</parameter>
+    </parameters>
+
+    <services>
+        <service id="connect_holland_ldap.security.user.provider.ldap" class="%connect_holland_ldap.security.user.provider.ldap.class%" abstract="true" public="false">
+            <argument/> <!-- connect_holland_ldap.security.user.factory -->
+            <argument/> <!-- connect_holland_ldap.ldap.client -->
+            <argument/> <!-- base_dn -->
+            <argument/> <!-- search_dn -->
+            <argument/> <!-- search_password -->
+            <argument/> <!-- default_roles -->
+            <argument/> <!-- uid_key -->
+            <argument/> <!-- filter -->
+        </service>
+
+        <service id="connect_holland_ldap.ldap.client" class="%connect_holland_ldap.ldap.client.class%" abstract="true" public="false">
+            <argument/> <!-- host -->
+            <argument/> <!-- port -->
+            <argument/> <!-- options.protocol_version -->
+            <argument/> <!-- encryption ssl -->
+            <argument/> <!-- encryption tls -->
+            <argument/> <!-- options.referrals -->
+        </service>
+
+        <service id="connect_holland_ldap.security.user.factory.doctrine" class="%connect_holland_ldap.security.user.factory.doctrine.class%" abstract="true" public="false">
+            <argument type="service" id="doctrine"/>
+            <argument/> <!-- user_class -->
+            <argument/> <!-- username_column -->
+            <argument/> <!-- user_property_map -->
+        </service>
+
+        <service id="connect_holland_ldap.security.user.factory.sulu" class="%connect_holland_ldap.security.user.factory.sulu.class%" abstract="true" public="false">
+            <argument type="service" id="doctrine"/>
+            <argument type="service" id="sulu.repository.user"/>
+            <argument type="service" id="sulu.repository.contact"/>
+            <argument type="service" id="sulu.repository.role"/>
+            <argument type="service" id="sulu.core.localization_manager"/>
+            <argument/> <!-- user_property_map -->
+        </service>
+    </services>
+</container>
