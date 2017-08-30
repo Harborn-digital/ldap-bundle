@@ -1,4 +1,7 @@
 # LDAP bundle
+[![Build Status][ico-build]][link-build]
+[![Coverage Status][ico-coverage]][link-coverage]
+
 The bundle extends LDAP authentication of the Symfony LDAP component with the ability to automatically create / fetch users from eg. a database. This enables you to (easily) add LDAP authentication to existing authentication bundles.
 
 ## Installation using Composer
@@ -136,3 +139,8 @@ connect_holland_ldap:
     filter: '({uid_key}={username})'
 ```
 
+[ico-build]: https://travis-ci.org/ConnectHolland/ldap-bundle.svg
+[ico-coverage]: https://coveralls.io/repos/github/ConnectHolland/ldap-bundle/badge.svg
+
+[link-build]: https://travis-ci.org/ConnectHolland/ldap-bundle
+[link-coverage]: https://coveralls.io/github/ConnectHolland/ldap-bundle
