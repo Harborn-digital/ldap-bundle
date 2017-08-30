@@ -82,11 +82,14 @@ class DoctrineUserFactory extends AbstractUserFactory
     {
         $userClass = $this->getUserClass();
         $user = new $userClass();
-        if (method_exists($user, 'setPassword')) {
-            $user->setPassword('');
+
+        $this->propertyAccessor->setValue($user, $this->usernameColumn, $username);
+
+        if ($this->propertyAccessor->isWritable($user, 'password')) {
+            $this->propertyAccessor->setValue($user, 'password', '');
         }
-        if (method_exists($user, 'setSalt')) {
-            $user->setSalt('');
+        if ($this->propertyAccessor->isWritable($user, 'salt')) {
+            $this->propertyAccessor->setValue($user, 'salt', '');
         }
 
         return $user;

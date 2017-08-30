@@ -20,7 +20,7 @@ abstract class AbstractUserFactory implements UserFactoryInterface
     /**
      * @var PropertyAccessor
      */
-    private $propertyAccessor;
+    protected $propertyAccessor;
 
     /**
      * Constructs a new AbstractUserFactory instance.
