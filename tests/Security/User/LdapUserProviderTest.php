@@ -5,6 +5,7 @@ namespace ConnectHolland\LdapBundle\Test\Security\User;
 use ConnectHolland\LdapBundle\Security\User\Factory\UserFactoryInterface;
 use ConnectHolland\LdapBundle\Security\User\LdapUserProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\LdapClientInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -38,6 +39,10 @@ class LdapUserProviderTest extends TestCase
      */
     public function setUp()
     {
+        if (class_exists(Entry::class)) {
+            $this->markTestSkipped('The LdapUserProvider is only functional with Symfony 2.8 - 3.0');
+        }
+
         $this->userFactoryMock = $this->getMockBuilder(UserFactoryInterface::class)
             ->getMock();
 

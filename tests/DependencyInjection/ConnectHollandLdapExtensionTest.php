@@ -4,6 +4,7 @@ namespace ConnectHolland\LdapBundle\Test\DependencyInjection;
 
 use ConnectHolland\LdapBundle\DependencyInjection\ConnectHollandLdapExtension;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
+use Symfony\Component\Ldap\Entry;
 
 /**
  * ConnectHollandLdapExtensionTest.
@@ -17,6 +18,10 @@ class ConnectHollandLdapExtensionTest extends AbstractExtensionTestCase
      */
     public function testLoad()
     {
+        if (class_exists(Entry::class)) {
+            $this->markTestSkipped('This test is only functional with Symfony 2.8 - 3.0');
+        }
+
         $this->load();
 
         $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.provider.ldap', 'ConnectHolland\\LdapBundle\\Security\\User\\LdapUserProvider');

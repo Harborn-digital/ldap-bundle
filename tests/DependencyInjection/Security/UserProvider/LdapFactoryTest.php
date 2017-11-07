@@ -7,6 +7,7 @@ use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractContainerBuilderTestCase;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Ldap\Entry;
 
 /**
  * LdapFactoryTest.
@@ -84,10 +85,14 @@ class LdapFactoryTest extends AbstractContainerBuilderTestCase
     }
 
     /**
-     * Tests if LdapFactory::create creates the service definitions.
+     * Tests if LdapFactory::create creates the service definitions with Symfony 2.8 - 3.0.
      */
     public function testCreate()
     {
+        if (class_exists(Entry::class)) {
+            $this->markTestSkipped('This test is only functional with Symfony 2.8 - 3.0');
+        }
+
         $this->ldapFactory->create(
             $this->container,
             'security.user.provider.concrete.my_ldap',
@@ -130,6 +135,10 @@ class LdapFactoryTest extends AbstractContainerBuilderTestCase
      */
     public function testCreateWithCustomUserFactory()
     {
+        if (class_exists(Entry::class)) {
+            $this->markTestSkipped('This test is only functional with Symfony 2.8 - 3.0');
+        }
+
         $this->ldapFactory->create(
             $this->container,
             'security.user.provider.concrete.my_ldap',
