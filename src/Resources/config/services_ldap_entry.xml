@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="connect_holland_ldap.object_factory.class">ConnectHolland\LdapBundle\DependencyInjection\ObjectFactory</parameter>
+        <parameter key="connect_holland_ldap.security.user.provider.ldap.class">ConnectHolland\LdapBundle\Security\User\LdapEntryUserProvider</parameter>
+        <parameter key="connect_holland_ldap.ldap.class">Symfony\Component\Ldap\Ldap</parameter>
+    </parameters>
+
+    <services>
+        <service id="connect_holland_ldap.security.user.provider.ldap" class="%connect_holland_ldap.security.user.provider.ldap.class%" abstract="true" public="false">
+            <argument/> <!-- connect_holland_ldap.security.user.factory -->
+            <argument/> <!-- connect_holland_ldap.ldap.client -->
+            <argument/> <!-- base_dn -->
+            <argument/> <!-- search_dn -->
+            <argument/> <!-- search_password -->
+            <argument/> <!-- default_roles -->
+            <argument/> <!-- uid_key -->
+            <argument/> <!-- filter -->
+        </service>
+
+        <service id="connect_holland_ldap.ldap" class="%connect_holland_ldap.ldap.class%" abstract="true" public="false">
+            <factory class="%connect_holland_ldap.object_factory.class%" method="createLdap"/>
+
+            <argument/> <!-- configuration -->
+        </service>
+    </services>
+</container>

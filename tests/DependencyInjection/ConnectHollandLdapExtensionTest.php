@@ -31,6 +31,23 @@ class ConnectHollandLdapExtensionTest extends AbstractExtensionTestCase
     }
 
     /**
+     * Tests if the ConnectHollandLdapExtension loads the abstract services.
+     */
+    public function testLoadLdapEntry()
+    {
+        if (class_exists(Entry::class) === false) {
+            $this->markTestSkipped('This test is only functional with Symfony 3.1+');
+        }
+
+        $this->load();
+
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.provider.ldap', 'ConnectHolland\\LdapBundle\\Security\\User\\LdapEntryUserProvider');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.ldap', 'Symfony\\Component\\Ldap\\Ldap');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.doctrine', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\DoctrineUserFactory');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.sulu', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\SuluUserFactory');
+    }
+
+    /**
      * {@inheritdoc}
      */
     protected function getContainerExtensions()

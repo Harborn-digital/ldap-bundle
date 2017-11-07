@@ -131,7 +131,53 @@ class LdapFactoryTest extends AbstractContainerBuilderTestCase
     }
 
     /**
-     * Tests if LdapFactory::create creates the service definitions, but not a service definition for the user factory.
+     * Tests if LdapFactory::create creates the service definitions with Symfony 3.1+.
+     */
+    public function testCreateLdapEntry()
+    {
+        if (class_exists(Entry::class) === false) {
+            $this->markTestSkipped('This test is only functional with Symfony 3.1+');
+        }
+
+        $this->ldapFactory->create(
+            $this->container,
+            'security.user.provider.concrete.my_ldap',
+            array(
+                'connection' => array(
+                    'host' => 'ldap.example.com',
+                    'port' => 389,
+                    'options' => array(
+                        'protocol_version' => 3,
+                        'referrals' => false,
+                    ),
+                ),
+                'user_factory' => array(
+                    'type' => 'doctrine',
+                    'user_class' => 'SomeUser',
+                    'username_column' => 'username',
+                    'user_property_map' => array(
+                        'uid' => 'username',
+                    ),
+                ),
+                'base_dn' => '',
+                'search_dn' => null,
+                'search_password' => null,
+                'default_roles' => array(
+                    'Admin',
+                ),
+                'uid_key' => 'sAMAccountName',
+                'filter' => '({uid_key}={username})',
+            )
+        );
+
+        $this->assertContainerBuilderHasParameter('security.user.provider.concrete.my_ldap.user.factory.user_property_map', array('uid' => 'username'));
+        $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap.user.factory', 'connect_holland_ldap.security.user.factory.doctrine');
+        $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap.client', 'connect_holland_ldap.ldap');
+        $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap', 'connect_holland_ldap.security.user.provider.ldap');
+    }
+
+    /**
+     * Tests if LdapFactory::create creates the service definitions, but not a service definition for the user factory with Symfony 2.8 - 3.0.
      */
     public function testCreateWithCustomUserFactory()
     {
@@ -171,6 +217,50 @@ class LdapFactoryTest extends AbstractContainerBuilderTestCase
         $this->assertContainerBuilderHasParameter('security.user.provider.concrete.my_ldap.user.factory.user_property_map', array('uid' => 'username'));
         $this->assertContainerBuilderNotHasService('security.user.provider.concrete.my_ldap.user.factory');
         $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap.client', 'connect_holland_ldap.ldap.client');
+        $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap', 'connect_holland_ldap.security.user.provider.ldap');
+    }
+
+    /**
+     * Tests if LdapFactory::create creates the service definitions, but not a service definition for the user factory with Symfony 3.1+.
+     */
+    public function testCreateLdapEntryWithCustomUserFactory()
+    {
+        if (class_exists(Entry::class) === false) {
+            $this->markTestSkipped('This test is only functional with Symfony 3.1+');
+        }
+
+        $this->ldapFactory->create(
+            $this->container,
+            'security.user.provider.concrete.my_ldap',
+            array(
+                'connection' => array(
+                    'host' => 'ldap.example.com',
+                    'port' => 389,
+                    'options' => array(
+                        'protocol_version' => 3,
+                        'referrals' => false,
+                    ),
+                ),
+                'user_factory' => array(
+                    'service' => 'some.user.factory.service',
+                    'user_property_map' => array(
+                        'uid' => 'username',
+                    ),
+                ),
+                'base_dn' => '',
+                'search_dn' => null,
+                'search_password' => null,
+                'default_roles' => array(
+                    'Admin',
+                ),
+                'uid_key' => 'sAMAccountName',
+                'filter' => '({uid_key}={username})',
+            )
+        );
+
+        $this->assertContainerBuilderHasParameter('security.user.provider.concrete.my_ldap.user.factory.user_property_map', array('uid' => 'username'));
+        $this->assertContainerBuilderNotHasService('security.user.provider.concrete.my_ldap.user.factory');
+        $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap.client', 'connect_holland_ldap.ldap');
         $this->assertContainerBuilderHasServiceDefinitionWithParent('security.user.provider.concrete.my_ldap', 'connect_holland_ldap.security.user.provider.ldap');
     }
 

@@ -7,6 +7,7 @@ use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Ldap\Entry;
 
 /**
  * LdapFactory creates services for the LDAP user provider.
@@ -156,6 +157,13 @@ class LdapFactory implements UserProviderFactoryInterface
      */
     private function createLdapClientDefinition(ContainerBuilder $container, $id, array $configuration)
     {
+        if (class_exists(Entry::class)) {
+            $container->setDefinition($id.'.client', new DefinitionDecorator('connect_holland_ldap.ldap'))
+                ->replaceArgument(0, $configuration);
+
+            return;
+        }
+
         $encryptionSsl = isset($configuration['encryption']) && $configuration['encryption'] === 'ssl';
         $encryptionTls = isset($configuration['encryption']) && $configuration['encryption'] === 'tls';
 
