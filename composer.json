@@ -21,11 +21,11 @@
     },
     "require": {
         "php": "^5.6 || ^7.0",
-        "doctrine/doctrine-bundle": "~1.6.0",
-        "symfony/ldap": "^2.8 || ~3.0.0",
+        "doctrine/doctrine-bundle": "^1.6",
+        "symfony/ldap": "^2.8 || ^3.0",
         "symfony/property-access": "^2.8 || ^3.0",
-        "symfony/security": "^2.8 || ~3.0.0",
-        "symfony/security-bundle": "^2.8 || ~3.0.0"
+        "symfony/security": "^2.8 || ^3.0",
+        "symfony/security-bundle": "^2.8 || ^3.0"
     },
     "require-dev": {
         "jackalope/jackalope": "^1.3",
@@ -33,10 +33,12 @@
         "matthiasnoback/symfony-dependency-injection-test": "^1.1",
         "phpunit/phpunit": "^5.7",
         "satooshi/php-coveralls": "^1.0",
-        "sulu/sulu": "^1.4",
-        "symfony/symfony": "^2.8 || ~3.0.0"
+        "sulu/sulu": "^1.4"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "5.6.32"
+        }
     }
 }

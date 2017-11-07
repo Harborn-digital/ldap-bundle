@@ -42,7 +42,7 @@ abstract class AbstractUserFactory implements UserFactoryInterface
     protected function updateUserWithLdapProperties(UserInterface $user, array $ldapUserProperties)
     {
         foreach ($this->userPropertyMap as $ldapKey => $propertyPath) {
-            if (isset($ldapUserProperties[$ldapKey]) === false || $ldapUserProperties[$ldapKey]['count'] === 0) {
+            if (isset($ldapUserProperties[$ldapKey][0]) === false) {
                 continue;
             }
 

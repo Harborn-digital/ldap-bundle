@@ -3,19 +3,20 @@
 namespace ConnectHolland\LdapBundle\Test\Security\User;
 
 use ConnectHolland\LdapBundle\Security\User\Factory\UserFactoryInterface;
-use ConnectHolland\LdapBundle\Security\User\LdapUserProvider;
+use ConnectHolland\LdapBundle\Security\User\LdapEntryUserProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Ldap\Adapter\QueryInterface;
 use Symfony\Component\Ldap\Entry;
-use Symfony\Component\Ldap\LdapClientInterface;
+use Symfony\Component\Ldap\LdapInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * LdapUserProviderTest.
+ * LdapEntryUserProviderTest.
  *
  * @author Niels Nijens <niels@connectholland.nl>
  */
-class LdapUserProviderTest extends TestCase
+class LdapEntryUserProviderTest extends TestCase
 {
     /**
      * @var UserFactoryInterface
@@ -23,37 +24,37 @@ class LdapUserProviderTest extends TestCase
     private $userFactoryMock;
 
     /**
-     * @var LdapClientInterface
+     * @var LdapInterface
      */
-    private $ldapClientMock;
+    private $ldapMock;
 
     /**
-     * The LdapUserProvider being tested.
+     * The LdapEntryUserProvider being tested.
      *
-     * @var LdapUserProvider
+     * @var LdapEntryUserProvider
      */
     private $ldapUserProvider;
 
     /**
-     * Creates a LdapUserProvider instance for testing.
+     * Creates a LdapEntryUserProvider instance for testing.
      */
     public function setUp()
     {
-        if (class_exists(Entry::class)) {
-            $this->markTestSkipped('The LdapUserProvider is only functional with Symfony 2.8 - 3.0');
+        if (class_exists(Entry::class) === false) {
+            $this->markTestSkipped('The LdapEntryUserProvider is only functional with Symfony 3.1+');
         }
 
         $this->userFactoryMock = $this->getMockBuilder(UserFactoryInterface::class)
             ->getMock();
 
-        $this->ldapClientMock = $this->getMockBuilder(LdapClientInterface::class)
+        $this->ldapMock = $this->getMockBuilder(LdapInterface::class)
             ->getMock();
 
-        $this->ldapUserProvider = new LdapUserProvider($this->userFactoryMock, $this->ldapClientMock, 'ou=users,dc=example,dc=com', null, null, array('ROLE_ADMIN'));
+        $this->ldapUserProvider = new LdapEntryUserProvider($this->userFactoryMock, $this->ldapMock, 'ou=users,dc=example,dc=com', null, null, array('ROLE_ADMIN'), 'uid');
     }
 
     /**
-     * Tests if constructing a new LdapUserProvider instance sets the instance properties.
+     * Tests if constructing a new LdapEntryUserProvider instance sets the instance properties.
      */
     public function testConstruct()
     {
@@ -62,7 +63,7 @@ class LdapUserProviderTest extends TestCase
     }
 
     /**
-     * Tests if LdapUserProvider::supportsClass uses the user class from the user factory to validate if the LdapUserProvider supports the class.
+     * Tests if LdapEntryUserProvider::supportsClass uses the user class from the user factory to validate if the LdapUserProvider supports the class.
      */
     public function testSupportsClass()
     {
@@ -74,23 +75,35 @@ class LdapUserProviderTest extends TestCase
     }
 
     /**
-     * Tests if LdapUserProvider::loadUser calls the getOrCreate method on the user factory and returns a user instance.
+     * Tests if LdapEntryUserProvider::loadUser calls the getOrCreate method on the user factory and returns a user instance.
      */
     public function testLoadUser()
     {
+        $entry = new Entry('uid=john,ou=users,dc=example,dc=com', array('uid' => array('john')));
+
+        $queryMock = $this->getMockBuilder(QueryInterface::class)
+            ->getMock();
+        $queryMock->expects($this->once())
+            ->method('execute')
+            ->willReturn(array($entry));
+
+        $this->ldapMock->expects($this->once())
+            ->method('query')
+            ->willReturn($queryMock);
+
         $userMock = $this->getMockBuilder(UserInterface::class)
             ->getMock();
 
         $this->userFactoryMock->expects($this->once())
             ->method('getOrCreate')
-            ->with($this->equalTo('john'), $this->equalTo(array()))
+            ->with($this->equalTo('john'), $this->equalTo(array('uid' => array('john'))))
             ->willReturn($userMock);
 
-        $this->assertInstanceOf(UserInterface::class, $this->ldapUserProvider->loadUser('john', array()));
+        $this->assertInstanceOf(UserInterface::class, $this->ldapUserProvider->loadUserByUsername('john'));
     }
 
     /**
-     * Tests if LdapUserProvider::refreshUser calls the getOrCreate method on the user factory to refresh the user instance.
+     * Tests if LdapEntryUserProvider::refreshUser calls the getOrCreate method on the user factory to refresh the user instance.
      */
     public function testRefreshUser()
     {
@@ -112,7 +125,7 @@ class LdapUserProviderTest extends TestCase
     }
 
     /**
-     * Tests if LdapUserProvider::refreshUser throws an UnsupportedUserException when the user factory does not support the user instance.
+     * Tests if LdapEntryUserProvider::refreshUser throws an UnsupportedUserException when the user factory does not support the user instance.
      */
     public function testRefreshUserThrowsUnsupportedUserException()
     {

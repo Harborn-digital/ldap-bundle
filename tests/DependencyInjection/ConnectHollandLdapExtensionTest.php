@@ -4,6 +4,7 @@ namespace ConnectHolland\LdapBundle\Test\DependencyInjection;
 
 use ConnectHolland\LdapBundle\DependencyInjection\ConnectHollandLdapExtension;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
+use Symfony\Component\Ldap\Entry;
 
 /**
  * ConnectHollandLdapExtensionTest.
@@ -17,10 +18,31 @@ class ConnectHollandLdapExtensionTest extends AbstractExtensionTestCase
      */
     public function testLoad()
     {
+        if (class_exists(Entry::class)) {
+            $this->markTestSkipped('This test is only functional with Symfony 2.8 - 3.0');
+        }
+
         $this->load();
 
         $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.provider.ldap', 'ConnectHolland\\LdapBundle\\Security\\User\\LdapUserProvider');
         $this->assertContainerBuilderHasService('connect_holland_ldap.ldap.client', 'Symfony\\Component\\Ldap\\LdapClient');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.doctrine', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\DoctrineUserFactory');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.sulu', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\SuluUserFactory');
+    }
+
+    /**
+     * Tests if the ConnectHollandLdapExtension loads the abstract services.
+     */
+    public function testLoadLdapEntry()
+    {
+        if (class_exists(Entry::class) === false) {
+            $this->markTestSkipped('This test is only functional with Symfony 3.1+');
+        }
+
+        $this->load();
+
+        $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.provider.ldap', 'ConnectHolland\\LdapBundle\\Security\\User\\LdapEntryUserProvider');
+        $this->assertContainerBuilderHasService('connect_holland_ldap.ldap', 'Symfony\\Component\\Ldap\\Ldap');
         $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.doctrine', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\DoctrineUserFactory');
         $this->assertContainerBuilderHasService('connect_holland_ldap.security.user.factory.sulu', 'ConnectHolland\\LdapBundle\\Security\\User\\Factory\\SuluUserFactory');
     }
